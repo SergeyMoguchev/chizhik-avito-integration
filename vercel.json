@@ -1,20 +1,27 @@
 {
   "version": 2,
-  "name": "chizhik-avito-integration",
   "builds": [
-    {
-      "src": "public/**/*",
-      "use": "@vercel/static"
-    },
     {
       "src": "api/**/*.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "public/**/*",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
+      "src": "/api/health",
+      "dest": "/api/health.js"
+    },
+    {
+      "src": "/api/auth", 
+      "dest": "/api/auth.js"
+    },
+    {
+      "src": "/api/search",
+      "dest": "/api/search.js"
     },
     {
       "src": "/(.*)",

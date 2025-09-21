@@ -20,10 +20,5 @@
       "src": "/(.*)",
       "dest": "/public/$1"
     }
-  ],
-  "functions": {
-    "api/*.js": {
-      "runtime": "@vercel/node@22.x"
-    }
-  }
+  ]
 }

@@ -228,7 +228,7 @@
         }
         .form-row {
             display: grid;
-            grid-template-columns: 1fr;
+            grid-template-columns: 1fr 1fr;
             gap: 20px;
         }
         .form-group.full-width {
@@ -324,6 +324,9 @@
             .header h1 {
                 font-size: 2.2em;
             }
+            .form-row {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -336,7 +339,7 @@
 
         <div class="status success">
             <strong>✅ Система активна с Яндекс картами!</strong><br>
-            Версия: 5.1.0 | Статус: API ключи настроены | Регионов: 34 | Тип: Продажа помещений
+            Версия: 5.2.0 | Статус: API ключи настроены | Регионов: 34 + все регионы | Тип: Продажа помещений
         </div>
 
         <div class="api-status">
@@ -357,7 +360,7 @@
         <div class="chizhik-requirements">
             <h3>🎯 Требования сети "Чижик" к помещениям:</h3>
             <ul>
-                <li><strong>Общая площадь:</strong> от 390 кв.м (без ограничения максимума)</li>
+                <li><strong>Общая площадь:</strong> от 390 кв.м (возможно больше)</li>
                 <li><strong>Торговый зал:</strong> 250-280 кв.м</li>
                 <li><strong>Тип сделки:</strong> ПОКУПКА помещения (не аренда)</li>
                 <li><strong>Расположение:</strong> приоритетно в одном уровне</li>
@@ -385,9 +388,10 @@
                 <h3>🔍 Поиск помещений на продажу:</h3>
 
                 <div class="form-group">
-                    <label for="region">Регион поиска (регионы присутствия сети):</label>
+                    <label for="region">Регион поиска:</label>
                     <select id="region" required>
                         <option value="">Выберите регион...</option>
+                        <option value="all_regions" style="background-color: #e8f5e8; font-weight: bold;">🌍 ВСЕ РЕГИОНЫ РОССИИ</option>
                         <optgroup label="🏛️ Центральная Россия">
                             <option value="moscow">Москва и Московская область</option>
                             <option value="voronezh">Воронежская область</option>
@@ -440,15 +444,30 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="minArea">Минимальная площадь (кв.м):</label>
-                        <input type="number" id="minArea" value="390" min="390" max="10000" required>
+                        <input type="number" id="minArea" value="390" min="100" max="10000" required>
                         <small style="color: #666;">Стандарт Чижик: от 390 кв.м</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="maxArea">Максимальная площадь (кв.м):</label>
+                        <input type="number" id="maxArea" placeholder="без ограничений" min="390" max="50000">
+                        <small style="color: #666;">Оставьте пустым для поиска без ограничений</small>
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
                         <label for="maxPrice">Макс. цена (млн руб):</label>
-                        <input type="number" id="maxPrice" placeholder="50" min="1" max="500" step="0.1">
+                        <input type="number" id="maxPrice" placeholder="без ограничений" min="1" max="1000" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label for="sortBy">Сортировка результатов:</label>
+                        <select id="sortBy">
+                            <option value="price_asc">По возрастанию цены</option>
+                            <option value="price_desc">По убыванию цены</option>
+                            <option value="area_asc">По возрастанию площади</option>
+                            <option value="area_desc">По убыванию площади</option>
+                            <option value="date_desc" selected>По дате размещения</option>
+                        </select>
                     </div>
                 </div>
 
@@ -456,6 +475,13 @@
                     <label>
                         <input type="checkbox" id="saleOnly" checked disabled> 
                         🏪 Поиск только на ПРОДАЖУ (не аренда)
+                    </label>
+                </div>
+
+                <div class="form-group full-width">
+                    <label>
+                        <input type="checkbox" id="demoMode" checked> 
+                        🎭 Демо-режим (показывать примеры при отсутствии результатов)
                     </label>
                 </div>
 
@@ -480,8 +506,9 @@
         let currentAccessToken = null;
         let yandexMap = null;
 
-        // Чистый список регионов без указания количества магазинов
+        // Расширенный список регионов с координатами
         const CHIZHIK_REGIONS = {
+            "all_regions": {"name": "Все регионы России", "coords": [55.7558, 37.6176], "zoom": 3},
             "moscow": {"name": "Москва и Московская область", "location_id": 621540, "federal_district": "Центральная Россия", "coords": [55.7558, 37.6176]},
             "voronezh": {"name": "Воронежская область", "location_id": 10661, "federal_district": "Центральная Россия", "coords": [51.6720, 39.1843]},
             "yaroslavl": {"name": "Ярославская область", "location_id": 10687, "federal_district": "Центральная Россия", "coords": [57.6261, 39.8845]},
@@ -518,6 +545,46 @@
             "murmansk": {"name": "Мурманская область", "location_id": 10897, "federal_district": "Северо-Запад", "coords": [68.9585, 33.0827]}
         };
 
+        // Демо-данные для примеров
+        const DEMO_LISTINGS = [
+            {
+                title: "Торговое помещение 420 кв.м в центре Москвы",
+                price: { value: 45000000 },
+                area: 420,
+                address: "г. Москва, ЦАО, ул. Тверская",
+                description: "Отдельно стоящее здание, первый этаж, отдельный вход, место для разгрузки",
+                floor: "1",
+                seller_type: "Собственник",
+                created_at: new Date().toISOString(),
+                coordinates: { lat: 55.7558 + (Math.random() - 0.5) * 0.1, lon: 37.6176 + (Math.random() - 0.5) * 0.1 },
+                url: "https://www.avito.ru/moskva/kommercheskaya_nedvizhimost/prodazha/pomeschenie-demo1"
+            },
+            {
+                title: "Коммерческое помещение 580 кв.м в Санкт-Петербурге",
+                price: { value: 38000000 },
+                area: 580,
+                address: "г. Санкт-Петербург, Невский район",
+                description: "Помещение в торговом центре, высокий трафик, парковка",
+                floor: "1",
+                seller_type: "Агентство",
+                created_at: new Date().toISOString(),
+                coordinates: { lat: 59.9311 + (Math.random() - 0.5) * 0.1, lon: 30.3609 + (Math.random() - 0.5) * 0.1 },
+                url: "https://www.avito.ru/sankt-peterburg/kommercheskaya_nedvizhimost/prodazha/pomeschenie-demo2"
+            },
+            {
+                title: "Производственно-торговое помещение 750 кв.м в Екатеринбурге",
+                price: { value: 22000000 },
+                area: 750,
+                address: "г. Екатеринбург, Орджоникидзевский район",
+                description: "Отдельно стоящее здание, складские помещения, удобная логистика",
+                floor: "1",
+                seller_type: "Собственник",
+                created_at: new Date().toISOString(),
+                coordinates: { lat: 56.8431 + (Math.random() - 0.5) * 0.1, lon: 60.6454 + (Math.random() - 0.5) * 0.1 },
+                url: "https://www.avito.ru/ekaterinburg/kommercheskaya_nedvizhimost/prodazha/pomeschenie-demo3"
+            }
+        ];
+
         // Инициализация карты Яндекс
         ymaps.ready(function () {
             try {
@@ -530,7 +597,7 @@
                 document.getElementById('map-status').innerHTML = 
                     '<span style="color: #28a745;">✅ Карта успешно загружена с API ключом</span>';
 
-                console.log('Yandex Maps successfully initialized with API key: a02e9c35-dadf-4b17-903a-4893c30c8b3e');
+                console.log('Yandex Maps successfully initialized');
             } catch (error) {
                 document.getElementById('map-status').innerHTML = 
                     '<span style="color: #dc3545;">❌ Ошибка загрузки карты: ' + error.message + '</span>';
@@ -579,6 +646,9 @@
 
         function testMap() {
             if (yandexMap) {
+                // Очищаем карту
+                yandexMap.geoObjects.removeAll();
+
                 // Добавляем тестовую метку
                 const testPlacemark = new ymaps.Placemark([55.751244, 37.618423], {
                     balloonContent: '<strong>Тестовая метка</strong><br>API ключи работают корректно!<br>JavaScript API: a02e9c35-dadf-4b17-903a-4893c30c8b3e<br>Tiles API: 37d973f4-24d9-45f9-aef5-1745f7a13e1d'
@@ -612,7 +682,10 @@
             // Сбор данных формы
             const region = document.getElementById('region').value;
             const minArea = parseInt(document.getElementById('minArea').value) || 390;
+            const maxArea = document.getElementById('maxArea').value ? parseInt(document.getElementById('maxArea').value) : null;
             const maxPrice = document.getElementById('maxPrice').value;
+            const sortBy = document.getElementById('sortBy').value;
+            const demoMode = document.getElementById('demoMode').checked;
 
             if (!region) {
                 document.getElementById('results').innerHTML = 
@@ -623,7 +696,10 @@
             // Формирование фильтров для покупки
             const filters = {
                 min_area: minArea,
-                deal_type: "sale", // ВАЖНО: поиск на продажу, не аренду
+                max_area: maxArea,
+                deal_type: "sale",
+                sort_by: sortBy,
+                demo_mode: demoMode,
                 chizhik_requirements: {
                     single_level_preferred: true,
                     loading_zone_preferred: true,
@@ -639,15 +715,17 @@
 
             // Центрируем карту на выбранном регионе
             if (yandexMap && regionData && regionData.coords) {
-                yandexMap.setCenter(regionData.coords, 9, { duration: 1000 });
+                const zoom = region === 'all_regions' ? 3 : 9;
+                yandexMap.setCenter(regionData.coords, zoom, { duration: 1000 });
             }
 
             document.getElementById('results').innerHTML = 
                 '<div class="status info"><strong>🔍 Поиск помещений на ПРОДАЖУ...</strong><br>' +
                 'Регион: ' + regionName + '<br>' +
-                'Площадь: от ' + minArea + ' кв.м (без ограничения максимума)<br>' +
+                'Площадь: от ' + minArea + (maxArea ? ' до ' + maxArea : '') + ' кв.м<br>' +
                 'Тип сделки: ПОКУПКА помещения<br>' +
-                'Поиск реальных объявлений через Avito API...</div>';
+                'Сортировка: ' + document.getElementById('sortBy').selectedOptions[0].text + '<br>' +
+                'Поиск через Avito API...</div>';
 
             try {
                 const response = await fetch('/api/search', {
@@ -659,13 +737,20 @@
                         region: region,
                         filters: filters,
                         access_token: currentAccessToken,
-                        search_type: 'real_sale_listings'
+                        search_type: 'enhanced_sale_listings'
                     })
                 });
 
                 const data = await response.json();
 
-                if (data.success && data.results) {
+                if (data.success) {
+                    // Если нет реальных результатов и включен демо-режим
+                    if (data.results.length === 0 && demoMode) {
+                        data.results = getFilteredDemoListings(filters, region);
+                        data.total_count = data.results.length;
+                        data.demo_mode = true;
+                    }
+
                     displaySearchResults(data);
                     updateMapWithResults(data.results);
                 } else {
@@ -678,15 +763,72 @@
             }
         }
 
+        function getFilteredDemoListings(filters, region) {
+            let listings = [...DEMO_LISTINGS];
+
+            // Фильтрация по площади
+            if (filters.min_area) {
+                listings = listings.filter(item => item.area >= filters.min_area);
+            }
+            if (filters.max_area) {
+                listings = listings.filter(item => item.area <= filters.max_area);
+            }
+
+            // Фильтрация по цене
+            if (filters.max_price) {
+                listings = listings.filter(item => item.price.value <= filters.max_price);
+            }
+
+            // Если выбран конкретный регион, обновляем координаты
+            if (region !== 'all_regions' && CHIZHIK_REGIONS[region]) {
+                const regionCoords = CHIZHIK_REGIONS[region].coords;
+                listings = listings.map(item => ({
+                    ...item,
+                    coordinates: {
+                        lat: regionCoords[0] + (Math.random() - 0.5) * 0.1,
+                        lon: regionCoords[1] + (Math.random() - 0.5) * 0.1
+                    },
+                    address: item.address.replace(/г\. \w+/, CHIZHIK_REGIONS[region].name)
+                }));
+            }
+
+            // Сортировка
+            if (filters.sort_by) {
+                switch (filters.sort_by) {
+                    case 'price_asc':
+                        listings.sort((a, b) => a.price.value - b.price.value);
+                        break;
+                    case 'price_desc':
+                        listings.sort((a, b) => b.price.value - a.price.value);
+                        break;
+                    case 'area_asc':
+                        listings.sort((a, b) => a.area - b.area);
+                        break;
+                    case 'area_desc':
+                        listings.sort((a, b) => b.area - a.area);
+                        break;
+                    case 'date_desc':
+                        listings.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                        break;
+                }
+            }
+
+            return listings;
+        }
+
         function displaySearchResults(data) {
+            const demoNotice = data.demo_mode ? 
+                '<div class="status warning"><strong>🎭 Демо-режим активен</strong><br>Показываются примеры объявлений, так как реальных результатов не найдено.</div>' : '';
+
             const resultsHtml = `
                 <div class="status success">
                     <strong>✅ Поиск помещений на ПРОДАЖУ завершен!</strong><br>
                     Найдено объявлений: <strong>${data.total_count}</strong> в регионе <strong>${data.region}</strong><br>
                     Тип сделки: <strong>ПРОДАЖА</strong> (не аренда)<br>
-                    Площадь: от ${data.filters_applied.min_area || 390} кв.м<br>
+                    Площадь: от ${data.filters_applied?.min_area || 390}${data.filters_applied?.max_area ? ' до ' + data.filters_applied.max_area : ''} кв.м<br>
                     Время поиска: ${new Date(data.timestamp).toLocaleString('ru-RU')}
                 </div>
+                ${demoNotice}
                 ${data.results.map(item => `
                     <div class="result-item" onclick="focusOnMap([${item.coordinates.lat}, ${item.coordinates.lon}])">
                         <div class="result-title">🏢 ${item.title}</div>
@@ -699,7 +841,7 @@
                             🚪 <strong>Описание:</strong> ${item.description}<br>
                             📅 <strong>Размещено:</strong> ${new Date(item.created_at).toLocaleDateString('ru-RU')}<br>
                             👤 <strong>Продавец:</strong> ${item.seller_type}<br>
-                            🗺️ <strong>Координаты:</strong> ${item.coordinates.lat}, ${item.coordinates.lon}
+                            🗺️ <strong>Координаты:</strong> ${item.coordinates.lat.toFixed(4)}, ${item.coordinates.lon.toFixed(4)}
                         </div>
                         <a href="${item.url}" target="_blank" class="result-link" onclick="event.stopPropagation();">
                             🔗 Открыть на Авито →
@@ -750,6 +892,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('minArea').value = 390;
             document.getElementById('saleOnly').checked = true;
+            document.getElementById('demoMode').checked = true;
         });
     </script>
 </body>

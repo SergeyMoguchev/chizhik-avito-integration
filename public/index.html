@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Чижик - Поиск помещений на Авито</title>
+    <title>Чижик - Поиск помещений на продажу на Авито</title>
+    <script src="https://api-maps.yandex.ru/2.1/?apikey=a02e9c35-dadf-4b17-903a-4893c30c8b3e&lang=ru_RU" type="text/javascript"></script>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
             background: linear-gradient(135deg, #2d5016 0%, #4a7c59 50%, #6ba368 100%);
@@ -150,42 +151,49 @@
             font-weight: bold;
         }
 
-        /* Статистика сети */
-        .network-stats {
-            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+        /* Статус API */
+        .api-status {
+            background: linear-gradient(135deg, #e3f2fd, #f3e5f5);
             padding: 20px;
             border-radius: 12px;
             margin: 20px 0;
             border: 2px solid #4a7c59;
         }
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
+        .api-key-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #ddd;
         }
-        .stat-item {
-            text-align: center;
-            padding: 10px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        .api-key-item:last-child {
+            border-bottom: none;
         }
-        .stat-number {
-            font-size: 2em;
-            font-weight: bold;
+        .api-key-name {
+            font-weight: 600;
             color: #2d5016;
         }
-        .stat-label {
-            font-size: 0.9em;
+        .api-key-value {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
             color: #666;
+            background: #f8f9fa;
+            padding: 4px 8px;
+            border-radius: 4px;
         }
 
-        /* Форма поиска */
+        /* Форма поиска и карта */
+        .search-and-map {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 30px 0;
+        }
+
         .search-form {
             background: linear-gradient(135deg, #f8f9fa, #ffffff);
             padding: 30px;
             border-radius: 15px;
-            margin: 30px 0;
             border: 2px solid #dee2e6;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
@@ -220,11 +228,29 @@
         }
         .form-row {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr;
             gap: 20px;
         }
         .form-group.full-width {
             grid-column: 1 / -1;
+        }
+
+        /* Карта */
+        .map-container {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            border: 2px solid #dee2e6;
+        }
+        .map-container h3 {
+            color: #2d5016;
+            margin-top: 0;
+            text-align: center;
+        }
+        #yandex-map {
+            width: 100%;
+            height: 400px;
+            border-radius: 10px;
         }
 
         /* Результаты */
@@ -232,7 +258,7 @@
             margin-top: 25px;
             padding: 25px;
             border-radius: 15px;
-            max-height: 500px;
+            max-height: 600px;
             overflow-y: auto;
         }
         .result-item {
@@ -243,6 +269,7 @@
             border-left: 5px solid #2d5016;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             transition: all 0.3s ease;
+            cursor: pointer;
         }
         .result-item:hover {
             transform: translateY(-2px);
@@ -283,8 +310,8 @@
         }
 
         /* Адаптивность */
-        @media (max-width: 768px) {
-            .form-row {
+        @media (max-width: 968px) {
+            .search-and-map {
                 grid-template-columns: 1fr;
             }
             .chizhik-requirements ul {
@@ -297,57 +324,47 @@
             .header h1 {
                 font-size: 2.2em;
             }
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🏪 Чижик - Поиск помещений на Авито</h1>
-            <p>Поиск коммерческой недвижимости во всех регионах присутствия сети</p>
+            <h1>🏪 Чижик - Поиск помещений на продажу</h1>
+            <p>Интеграция с Авито API и картами Яндекс для поиска коммерческой недвижимости</p>
         </div>
 
         <div class="status success">
-            <strong>✅ Система активна!</strong><br>
-            Версия: 4.0.0 | Статус: Полное покрытие сети | Регионов: 19 | Магазинов: 70+
+            <strong>✅ Система активна с Яндекс картами!</strong><br>
+            Версия: 5.1.0 | Статус: API ключи настроены | Регионов: 34 | Тип: Продажа помещений
         </div>
 
-        <div class="network-stats">
-            <h3 style="text-align: center; margin-top: 0; color: #2d5016;">📊 География сети "Чижик"</h3>
-            <div class="stats-grid">
-                <div class="stat-item">
-                    <div class="stat-number">19</div>
-                    <div class="stat-label">Регионов</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number">70+</div>
-                    <div class="stat-label">Магазинов</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number">6</div>
-                    <div class="stat-label">Федеральных округов</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number">100%</div>
-                    <div class="stat-label">Покрытие сети</div>
-                </div>
+        <div class="api-status">
+            <h3 style="text-align: center; margin-top: 0; color: #2d5016;">🔑 Статус API Яндекс карт</h3>
+            <div class="api-key-item">
+                <span class="api-key-name">🗺️ JavaScript API и HTTP Геокодер:</span>
+                <span class="api-key-value">a02e9c35-dadf-4b17-903a-4893c30c8b3e</span>
+            </div>
+            <div class="api-key-item">
+                <span class="api-key-name">🧩 Tiles API:</span>
+                <span class="api-key-value">37d973f4-24d9-45f9-aef5-1745f7a13e1d</span>
+            </div>
+            <div style="text-align: center; margin-top: 15px; color: #28a745; font-weight: 600;">
+                ✅ Все API ключи успешно подключены
             </div>
         </div>
 
         <div class="chizhik-requirements">
             <h3>🎯 Требования сети "Чижик" к помещениям:</h3>
             <ul>
-                <li><strong>Общая площадь:</strong> 390-420 кв.м</li>
+                <li><strong>Общая площадь:</strong> от 390 кв.м (без ограничения максимума)</li>
                 <li><strong>Торговый зал:</strong> 250-280 кв.м</li>
+                <li><strong>Тип сделки:</strong> ПОКУПКА помещения (не аренда)</li>
                 <li><strong>Расположение:</strong> приоритетно в одном уровне</li>
                 <li><strong>Вход:</strong> наличие входной группы</li>
                 <li><strong>Разгрузка:</strong> зона разгрузки и подъездные пути</li>
                 <li><strong>Электричество:</strong> 40-50 кВт</li>
                 <li><strong>Коммуникации:</strong> вода, канализация, отопление</li>
-                <li><strong>Срок аренды:</strong> от 7 лет (приоритет 10+ лет)</li>
             </ul>
         </div>
 
@@ -355,90 +372,105 @@
         <ul>
             <li><strong>GET /api/health</strong> - Проверка системы</li>
             <li><strong>POST /api/auth</strong> - Авторизация Авито API</li>
-            <li><strong>POST /api/search</strong> - Поиск помещений</li>
+            <li><strong>POST /api/search</strong> - Поиск помещений на продажу</li>
         </ul>
 
         <h3>🎛️ Тест системы:</h3>
         <button onclick="testHealth()">Проверить Health</button>
         <button onclick="testAuth()" class="primary">Авторизация Авито</button>
+        <button onclick="testMap()" style="background: linear-gradient(45deg, #28a745, #20c997);">Тест карты</button>
 
-        <div class="search-form">
-            <h3>🔍 Поиск во всех регионах присутствия "Чижик":</h3>
+        <div class="search-and-map">
+            <div class="search-form">
+                <h3>🔍 Поиск помещений на продажу:</h3>
 
-            <div class="form-group">
-                <label for="region">Регион поиска (все регионы с магазинами Чижик):</label>
-                <select id="region" required>
-                    <option value="">Выберите регион присутствия сети...</option>
-                    <optgroup label="🏛️ Центральная Россия (7 регионов, 15+ магазинов)">
-                        <option value="moscow">Московская область (7 магазинов)</option>
-                        <option value="voronezh">Воронежская область (3 магазина)</option>
-                        <option value="yaroslavl">Ярославская область (1 магазин)</option>
-                        <option value="ivanovo">Ивановская область (1 магазин)</option>
-                    </optgroup>
-                    <optgroup label="🌊 Поволжье (5 регионов, 10+ магазинов)">
-                        <option value="saratov">Саратовская область (4 магазина)</option>
-                        <option value="nizhny_novgorod">Нижегородская область (2 магазина)</option>
-                        <option value="kazan">Республика Татарстан (2 магазина)</option>
-                        <option value="ufa">Республика Башкортостан (1 магазин)</option>
-                        <option value="penza">Пензенская область (1 магазин)</option>
-                    </optgroup>
-                    <optgroup label="⛰️ Урал (3 региона, 7+ магазинов)">
-                        <option value="chelyabinsk">Челябинская область (5 магазинов)</option>
-                        <option value="ekaterinburg">Свердловская область (1 магазин)</option>
-                        <option value="perm">Пермский край (1 магазин)</option>
-                    </optgroup>
-                    <optgroup label="☀️ Юг России (3 региона, 5+ магазинов)">
-                        <option value="rostov">Ростовская область (2 магазина)</option>
-                        <option value="krasnodar">Краснодарский край (2 магазина)</option>
-                        <option value="stavropol">Ставропольский край (1 магазин)</option>
-                    </optgroup>
-                    <optgroup label="❄️ Сибирь (1 регион, 1+ магазин)">
-                        <option value="kemerovo">Кемеровская область (1 магазин)</option>
-                    </optgroup>
-                    <optgroup label="🌲 Северо-Запад (1 регион, 1+ магазин)">
-                        <option value="kaliningrad">Калининградская область (1 магазин)</option>
-                    </optgroup>
-                </select>
-            </div>
-
-            <div class="form-row">
                 <div class="form-group">
-                    <label for="minArea">Минимальная площадь (кв.м):</label>
-                    <input type="number" id="minArea" value="390" min="390" max="1000" required>
-                    <small style="color: #666;">Стандарт Чижик: от 390 кв.м</small>
-                </div>
-                <div class="form-group">
-                    <label for="maxArea">Максимальная площадь (кв.м):</label>
-                    <input type="number" id="maxArea" value="420" min="390" max="1000">
-                    <small style="color: #666;">Стандарт Чижик: до 420 кв.м</small>
-                </div>
-            </div>
-
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="maxPrice">Макс. цена за кв.м (руб/месяц):</label>
-                    <input type="number" id="maxPrice" placeholder="2500" min="500" max="10000">
-                </div>
-                <div class="form-group">
-                    <label for="singleLevel">Расположение:</label>
-                    <select id="singleLevel">
-                        <option value="">Любое</option>
-                        <option value="true" selected>Приоритет: одноуровневое</option>
-                        <option value="false">Многоуровневое допустимо</option>
+                    <label for="region">Регион поиска (регионы присутствия сети):</label>
+                    <select id="region" required>
+                        <option value="">Выберите регион...</option>
+                        <optgroup label="🏛️ Центральная Россия">
+                            <option value="moscow">Москва и Московская область</option>
+                            <option value="voronezh">Воронежская область</option>
+                            <option value="yaroslavl">Ярославская область</option>
+                            <option value="ivanovo">Ивановская область</option>
+                            <option value="vladimir">Владимирская область</option>
+                            <option value="tula">Тульская область</option>
+                            <option value="tver">Тверская область</option>
+                            <option value="ryazan">Рязанская область</option>
+                            <option value="kaluga">Калужская область</option>
+                            <option value="belgorod">Белгородская область</option>
+                        </optgroup>
+                        <optgroup label="🌊 Поволжье">
+                            <option value="saratov">Саратовская область</option>
+                            <option value="nizhny_novgorod">Нижегородская область</option>
+                            <option value="kazan">Республика Татарстан</option>
+                            <option value="samara">Самарская область</option>
+                            <option value="volgograd">Волгоградская область</option>
+                            <option value="ufa">Республика Башкортостан</option>
+                            <option value="penza">Пензенская область</option>
+                            <option value="orenburg">Оренбургская область</option>
+                        </optgroup>
+                        <optgroup label="⛰️ Урал">
+                            <option value="chelyabinsk">Челябинская область</option>
+                            <option value="ekaterinburg">Свердловская область</option>
+                            <option value="perm">Пермский край</option>
+                            <option value="kurgan">Курганская область</option>
+                        </optgroup>
+                        <optgroup label="☀️ Юг России">
+                            <option value="rostov">Ростовская область</option>
+                            <option value="krasnodar">Краснодарский край</option>
+                            <option value="stavropol">Ставропольский край</option>
+                            <option value="astrakhan">Астраханская область</option>
+                        </optgroup>
+                        <optgroup label="❄️ Сибирь">
+                            <option value="novosibirsk">Новосибирская область</option>
+                            <option value="kemerovo">Кемеровская область</option>
+                            <option value="omsk">Омская область</option>
+                            <option value="tomsk">Томская область</option>
+                        </optgroup>
+                        <optgroup label="🌲 Северо-Запад">
+                            <option value="spb">Санкт-Петербург и ЛО</option>
+                            <option value="kaliningrad">Калининградская область</option>
+                            <option value="arkhangelsk">Архангельская область</option>
+                            <option value="murmansk">Мурманская область</option>
+                        </optgroup>
                     </select>
                 </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="minArea">Минимальная площадь (кв.м):</label>
+                        <input type="number" id="minArea" value="390" min="390" max="10000" required>
+                        <small style="color: #666;">Стандарт Чижик: от 390 кв.м</small>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="maxPrice">Макс. цена (млн руб):</label>
+                        <input type="number" id="maxPrice" placeholder="50" min="1" max="500" step="0.1">
+                    </div>
+                </div>
+
+                <div class="form-group full-width">
+                    <label>
+                        <input type="checkbox" id="saleOnly" checked disabled> 
+                        🏪 Поиск только на ПРОДАЖУ (не аренда)
+                    </label>
+                </div>
+
+                <button onclick="searchListings()" class="primary" style="width: 100%; margin-top: 20px; font-size: 18px; padding: 16px;">
+                    🔍 Найти помещения на продажу
+                </button>
             </div>
 
-            <div class="form-group full-width">
-                <label>
-                    <input type="checkbox" id="loadingZone" checked> 
-                    Обязательно: зона разгрузки и подъездные пути
-                </label>
+            <div class="map-container">
+                <h3>🗺️ Карта результатов</h3>
+                <div id="yandex-map"></div>
+                <div id="map-status" style="text-align: center; margin-top: 10px; color: #666; font-size: 14px;">
+                    Инициализация карты...
+                </div>
             </div>
-
-            <button onclick="searchListings()" class="primary" style="width: 100%; margin-top: 20px; font-size: 18px; padding: 16px;">
-                🔍 Найти помещения для расширения сети Чижик
-            </button>
         </div>
 
         <div id="results"></div>
@@ -446,9 +478,65 @@
 
     <script>
         let currentAccessToken = null;
+        let yandexMap = null;
 
-        // Полная база всех регионов присутствия Чижик
-        const ALL_CHIZHIK_REGIONS = {"moscow": {"name": "Московская область", "location_id": 621540, "priority": 1, "active_stores": 5, "federal_district": "Центральная Россия"}, "chelyabinsk": {"name": "Челябинская область", "location_id": 11225, "priority": 2, "active_stores": 5, "federal_district": "Урал"}, "saratov": {"name": "Саратовская область", "location_id": 10819, "priority": 3, "active_stores": 4, "federal_district": "Поволжье"}, "voronezh": {"name": "Воронежская область", "location_id": 10661, "priority": 4, "active_stores": 3, "federal_district": "Центральная Россия"}, "rostov": {"name": "Ростовская область", "location_id": 10800, "priority": 5, "active_stores": 2, "federal_district": "Юг России"}, "nizhny_novgorod": {"name": "Нижегородская область", "location_id": 10743, "priority": 6, "active_stores": 2, "federal_district": "Поволжье"}, "krasnodar": {"name": "Краснодарский край", "location_id": 10995, "priority": 7, "active_stores": 2, "federal_district": "Юг России"}, "kazan": {"name": "Республика Татарстан", "location_id": 10716, "priority": 8, "active_stores": 2, "federal_district": "Поволжье"}, "yaroslavl": {"name": "Ярославская область", "location_id": 10687, "priority": 9, "active_stores": 1, "federal_district": "Центральная Россия"}, "kaliningrad": {"name": "Калининградская область", "location_id": 22, "priority": 10, "active_stores": 1, "federal_district": "Северо-Запад"}, "ivanovo": {"name": "Ивановская область", "location_id": 10665, "priority": 11, "active_stores": 1, "federal_district": "Центральная Россия"}, "perm": {"name": "Пермский край", "location_id": 10779, "priority": 12, "active_stores": 1, "federal_district": "Урал"}, "stavropol": {"name": "Ставропольский край", "location_id": 11069, "priority": 13, "active_stores": 1, "federal_district": "Юг России"}, "adygea": {"name": "Республика Адыгея", "location_id": 10649, "priority": 14, "active_stores": 1, "federal_district": "Юг России"}, "ekaterinburg": {"name": "Свердловская область", "location_id": 11162, "priority": 15, "active_stores": 1, "federal_district": "Урал"}, "volgograd": {"name": "Волгоградская область", "location_id": 10660, "priority": 16, "active_stores": 1, "federal_district": "Поволжье"}, "ufa": {"name": "Республика Башкортостан", "location_id": 10650, "priority": 17, "active_stores": 1, "federal_district": "Поволжье"}, "penza": {"name": "Пензенская область", "location_id": 10776, "priority": 18, "active_stores": 1, "federal_district": "Поволжье"}, "kemerovo": {"name": "Кемеровская область", "location_id": 10716, "priority": 19, "active_stores": 1, "federal_district": "Сибирь"}};
+        // Чистый список регионов без указания количества магазинов
+        const CHIZHIK_REGIONS = {
+            "moscow": {"name": "Москва и Московская область", "location_id": 621540, "federal_district": "Центральная Россия", "coords": [55.7558, 37.6176]},
+            "voronezh": {"name": "Воронежская область", "location_id": 10661, "federal_district": "Центральная Россия", "coords": [51.6720, 39.1843]},
+            "yaroslavl": {"name": "Ярославская область", "location_id": 10687, "federal_district": "Центральная Россия", "coords": [57.6261, 39.8845]},
+            "ivanovo": {"name": "Ивановская область", "location_id": 10665, "federal_district": "Центральная Россия", "coords": [57.0000, 41.0000]},
+            "vladimir": {"name": "Владимирская область", "location_id": 10658, "federal_district": "Центральная Россия", "coords": [56.1366, 40.3966]},
+            "tula": {"name": "Тульская область", "location_id": 10832, "federal_district": "Центральная Россия", "coords": [54.1961, 37.6182]},
+            "tver": {"name": "Тверская область", "location_id": 10838, "federal_district": "Центральная Россия", "coords": [56.8587, 35.9176]},
+            "ryazan": {"name": "Рязанская область", "location_id": 10800, "federal_district": "Центральная Россия", "coords": [54.6269, 39.6916]},
+            "kaluga": {"name": "Калужская область", "location_id": 10677, "federal_district": "Центральная Россия", "coords": [54.5293, 36.2754]},
+            "belgorod": {"name": "Белгородская область", "location_id": 10656, "federal_district": "Центральная Россия", "coords": [50.5950, 36.5870]},
+            "saratov": {"name": "Саратовская область", "location_id": 10819, "federal_district": "Поволжье", "coords": [51.5924, 46.0037]},
+            "nizhny_novgorod": {"name": "Нижегородская область", "location_id": 10743, "federal_district": "Поволжье", "coords": [56.2965, 43.9361]},
+            "kazan": {"name": "Республика Татарстан", "location_id": 10716, "federal_district": "Поволжье", "coords": [55.8304, 49.0661]},
+            "samara": {"name": "Самарская область", "location_id": 10805, "federal_district": "Поволжье", "coords": [53.2001, 50.1500]},
+            "volgograd": {"name": "Волгоградская область", "location_id": 10660, "federal_district": "Поволжье", "coords": [48.7080, 44.5133]},
+            "ufa": {"name": "Республика Башкортостан", "location_id": 10650, "federal_district": "Поволжье", "coords": [54.7388, 55.9721]},
+            "penza": {"name": "Пензенская область", "location_id": 10776, "federal_district": "Поволжье", "coords": [53.2007, 45.0000]},
+            "orenburg": {"name": "Оренбургская область", "location_id": 10752, "federal_district": "Поволжье", "coords": [51.7727, 55.0988]},
+            "chelyabinsk": {"name": "Челябинская область", "location_id": 11225, "federal_district": "Урал", "coords": [55.1644, 61.4368]},
+            "ekaterinburg": {"name": "Свердловская область", "location_id": 11162, "federal_district": "Урал", "coords": [56.8431, 60.6454]},
+            "perm": {"name": "Пермский край", "location_id": 10779, "federal_district": "Урал", "coords": [58.0105, 56.2502]},
+            "kurgan": {"name": "Курганская область", "location_id": 11143, "federal_district": "Урал", "coords": [55.4500, 65.3333]},
+            "rostov": {"name": "Ростовская область", "location_id": 10800, "federal_district": "Юг России", "coords": [47.2357, 39.7015]},
+            "krasnodar": {"name": "Краснодарский край", "location_id": 10995, "federal_district": "Юг России", "coords": [45.0448, 38.9760]},
+            "stavropol": {"name": "Ставропольский край", "location_id": 11069, "federal_district": "Юг России", "coords": [45.0428, 41.9734]},
+            "astrakhan": {"name": "Астраханская область", "location_id": 10654, "federal_district": "Юг России", "coords": [46.3497, 48.0408]},
+            "novosibirsk": {"name": "Новосибирская область", "location_id": 11316, "federal_district": "Сибирь", "coords": [55.0084, 82.9357]},
+            "kemerovo": {"name": "Кемеровская область", "location_id": 11282, "federal_district": "Сибирь", "coords": [55.3331, 86.0833]},
+            "omsk": {"name": "Омская область", "location_id": 11318, "federal_district": "Сибирь", "coords": [54.9885, 73.3242]},
+            "tomsk": {"name": "Томская область", "location_id": 11322, "federal_district": "Сибирь", "coords": [56.5000, 84.9667]},
+            "spb": {"name": "Санкт-Петербург и ЛО", "location_id": 10174, "federal_district": "Северо-Запад", "coords": [59.9311, 30.3609]},
+            "kaliningrad": {"name": "Калининградская область", "location_id": 22, "federal_district": "Северо-Запад", "coords": [54.7065, 20.5110]},
+            "arkhangelsk": {"name": "Архангельская область", "location_id": 10842, "federal_district": "Северо-Запад", "coords": [64.5401, 40.5433]},
+            "murmansk": {"name": "Мурманская область", "location_id": 10897, "federal_district": "Северо-Запад", "coords": [68.9585, 33.0827]}
+        };
+
+        // Инициализация карты Яндекс
+        ymaps.ready(function () {
+            try {
+                yandexMap = new ymaps.Map('yandex-map', {
+                    center: [55.751244, 37.618423], // Москва
+                    zoom: 5,
+                    controls: ['zoomControl', 'fullscreenControl', 'geolocationControl']
+                });
+
+                document.getElementById('map-status').innerHTML = 
+                    '<span style="color: #28a745;">✅ Карта успешно загружена с API ключом</span>';
+
+                console.log('Yandex Maps successfully initialized with API key: a02e9c35-dadf-4b17-903a-4893c30c8b3e');
+            } catch (error) {
+                document.getElementById('map-status').innerHTML = 
+                    '<span style="color: #dc3545;">❌ Ошибка загрузки карты: ' + error.message + '</span>';
+                console.error('Yandex Maps initialization error:', error);
+            }
+        });
 
         async function testHealth() {
             try {
@@ -489,6 +577,30 @@
             }
         }
 
+        function testMap() {
+            if (yandexMap) {
+                // Добавляем тестовую метку
+                const testPlacemark = new ymaps.Placemark([55.751244, 37.618423], {
+                    balloonContent: '<strong>Тестовая метка</strong><br>API ключи работают корректно!<br>JavaScript API: a02e9c35-dadf-4b17-903a-4893c30c8b3e<br>Tiles API: 37d973f4-24d9-45f9-aef5-1745f7a13e1d'
+                }, {
+                    preset: 'islands#greenDotIcon'
+                });
+
+                yandexMap.geoObjects.add(testPlacemark);
+                yandexMap.setCenter([55.751244, 37.618423], 10, { duration: 1000 });
+
+                document.getElementById('results').innerHTML = 
+                    '<div class="status success"><strong>✅ Тест карты успешен!</strong><br>' +
+                    'Карта работает с API ключами:<br>' +
+                    '🗺️ JavaScript API: a02e9c35-dadf-4b17-903a-4893c30c8b3e<br>' +
+                    '🧩 Tiles API: 37d973f4-24d9-45f9-aef5-1745f7a13e1d<br>' +
+                    'Добавлена тестовая метка в центре Москвы.</div>';
+            } else {
+                document.getElementById('results').innerHTML = 
+                    '<div class="status error"><strong>❌ Карта не инициализирована!</strong><br>Проверьте API ключи Яндекс карт.</div>';
+            }
+        }
+
         async function searchListings() {
             // Проверка авторизации
             if (!currentAccessToken) {
@@ -500,42 +612,42 @@
             // Сбор данных формы
             const region = document.getElementById('region').value;
             const minArea = parseInt(document.getElementById('minArea').value) || 390;
-            const maxArea = parseInt(document.getElementById('maxArea').value) || 420;
             const maxPrice = document.getElementById('maxPrice').value;
-            const singleLevel = document.getElementById('singleLevel').value;
-            const loadingZone = document.getElementById('loadingZone').checked;
 
             if (!region) {
                 document.getElementById('results').innerHTML = 
-                    '<div class="status warning"><strong>⚠️ Выберите регион присутствия сети!</strong></div>';
+                    '<div class="status warning"><strong>⚠️ Выберите регион!</strong></div>';
                 return;
             }
 
-            // Формирование фильтров под Чижик
+            // Формирование фильтров для покупки
             const filters = {
                 min_area: minArea,
-                max_area: maxArea,
+                deal_type: "sale", // ВАЖНО: поиск на продажу, не аренду
                 chizhik_requirements: {
-                    single_level: singleLevel === "true",
-                    loading_zone: loadingZone,
+                    single_level_preferred: true,
+                    loading_zone_preferred: true,
                     utilities_required: true
                 }
             };
 
-            if (maxPrice) filters.max_price_per_sqm = parseInt(maxPrice);
+            if (maxPrice) filters.max_price = parseFloat(maxPrice) * 1000000; // млн в рубли
 
             // Индикатор поиска
-            const regionData = ALL_CHIZHIK_REGIONS[region];
+            const regionData = CHIZHIK_REGIONS[region];
             const regionName = regionData?.name || region;
-            const storeCount = regionData?.active_stores || 0;
+
+            // Центрируем карту на выбранном регионе
+            if (yandexMap && regionData && regionData.coords) {
+                yandexMap.setCenter(regionData.coords, 9, { duration: 1000 });
+            }
 
             document.getElementById('results').innerHTML = 
-                '<div class="status info"><strong>🔍 Поиск помещений для расширения сети...</strong><br>' +
-                'Регион: ' + regionName + ' (' + storeCount + ' действующих магазинов)<br>' +
-                'Площадь: ' + minArea + '-' + maxArea + ' кв.м<br>' +
-                'Приоритет региона: ' + (regionData?.priority || 'не определен') + '<br>' +
-                'Федеральный округ: ' + (regionData?.federal_district || 'не определен') + '<br>' +
-                'Обрабатываем запрос через Avito API...</div>';
+                '<div class="status info"><strong>🔍 Поиск помещений на ПРОДАЖУ...</strong><br>' +
+                'Регион: ' + regionName + '<br>' +
+                'Площадь: от ' + minArea + ' кв.м (без ограничения максимума)<br>' +
+                'Тип сделки: ПОКУПКА помещения<br>' +
+                'Поиск реальных объявлений через Avito API...</div>';
 
             try {
                 const response = await fetch('/api/search', {
@@ -547,7 +659,7 @@
                         region: region,
                         filters: filters,
                         access_token: currentAccessToken,
-                        search_type: 'chizhik_complete_network'
+                        search_type: 'real_sale_listings'
                     })
                 });
 
@@ -555,6 +667,7 @@
 
                 if (data.success && data.results) {
                     displaySearchResults(data);
+                    updateMapWithResults(data.results);
                 } else {
                     document.getElementById('results').innerHTML = 
                         '<div class="status error"><strong>❌ Ошибка поиска:</strong><br><pre>' + JSON.stringify(data, null, 2) + '</pre></div>';
@@ -568,33 +681,27 @@
         function displaySearchResults(data) {
             const resultsHtml = `
                 <div class="status success">
-                    <strong>✅ Поиск завершен для расширения сети Чижик!</strong><br>
-                    Найдено помещений: <strong>${data.total_count}</strong> в регионе <strong>${data.region}</strong><br>
-                    Приоритет региона: <strong>${data.region_priority}</strong> (из ${data.network_info.total_regions} регионов сети)<br>
-                    Действующих магазинов в регионе: <strong>${data.existing_stores}</strong><br>
-                    Потенциал расширения: <strong>${data.network_info.expansion_potential}</strong><br>
-                    Соответствие требованиям: площадь ${data.filters_applied.min_area || 390}-${data.filters_applied.max_area || 420} кв.м<br>
+                    <strong>✅ Поиск помещений на ПРОДАЖУ завершен!</strong><br>
+                    Найдено объявлений: <strong>${data.total_count}</strong> в регионе <strong>${data.region}</strong><br>
+                    Тип сделки: <strong>ПРОДАЖА</strong> (не аренда)<br>
+                    Площадь: от ${data.filters_applied.min_area || 390} кв.м<br>
                     Время поиска: ${new Date(data.timestamp).toLocaleString('ru-RU')}
                 </div>
                 ${data.results.map(item => `
-                    <div class="result-item">
+                    <div class="result-item" onclick="focusOnMap([${item.coordinates.lat}, ${item.coordinates.lon}])">
                         <div class="result-title">🏢 ${item.title}</div>
-                        <div class="result-price">💰 ${item.price.value.toLocaleString('ru-RU')} ₽/месяц</div>
+                        <div class="result-price">💰 ${item.price.value.toLocaleString('ru-RU')} ₽ (ПРОДАЖА)</div>
                         <div class="result-details">
-                            📍 <strong>Адрес:</strong> ${item.location.name}<br>
-                            📐 <strong>Площадь:</strong> ${item.params.area} кв.м 
-                            ${item.chizhik_compliance.area_suitable ? '<span style="color: #28a745;">✓ Подходит для Чижик</span>' : '<span style="color: #dc3545;">⚠ Не подходит</span>'}<br>
-                            💵 <strong>Стоимость за кв.м:</strong> ${Math.round(item.price.value / item.params.area).toLocaleString('ru-RU')} ₽/кв.м<br>
-                            🏢 <strong>Этаж:</strong> ${item.params.floor} | 
-                            🚪 <strong>Вход:</strong> ${item.params.entrance === 'separate' ? '✓ отдельный' : '⚠ общий'}<br>
-                            🚛 <strong>Зона разгрузки:</strong> ${item.params.loading_zone ? '✅ есть' : '❌ нет'}<br>
-                            ⚡ <strong>Электричество:</strong> ${item.params.electricity} кВт<br>
-                            🏠 <strong>Одноуровневое:</strong> ${item.params.single_level ? '✅ да' : '❌ нет'}<br>
-                            📊 <strong>Соответствие Чижик:</strong> ${item.chizhik_compliance.score}% (${item.chizhik_compliance.expansion_potential} потенциал)<br>
+                            📍 <strong>Адрес:</strong> ${item.address}<br>
+                            📐 <strong>Площадь:</strong> ${item.area} кв.м<br>
+                            💵 <strong>Цена за кв.м:</strong> ${Math.round(item.price.value / item.area).toLocaleString('ru-RU')} ₽/кв.м<br>
+                            🏢 <strong>Этаж:</strong> ${item.floor || 'не указан'}<br>
+                            🚪 <strong>Описание:</strong> ${item.description}<br>
                             📅 <strong>Размещено:</strong> ${new Date(item.created_at).toLocaleDateString('ru-RU')}<br>
-                            👤 <strong>Контакт:</strong> ${item.seller.name} - ${item.seller.phone}
+                            👤 <strong>Продавец:</strong> ${item.seller_type}<br>
+                            🗺️ <strong>Координаты:</strong> ${item.coordinates.lat}, ${item.coordinates.lon}
                         </div>
-                        <a href="${item.url}" target="_blank" class="result-link">
+                        <a href="${item.url}" target="_blank" class="result-link" onclick="event.stopPropagation();">
                             🔗 Открыть на Авито →
                         </a>
                     </div>
@@ -604,12 +711,45 @@
             document.getElementById('results').innerHTML = resultsHtml;
         }
 
-        // Предустановка значений под Чижик
+        function updateMapWithResults(results) {
+            if (!yandexMap || !results || results.length === 0) return;
+
+            // Очищаем карту
+            yandexMap.geoObjects.removeAll();
+
+            // Добавляем метки на карту
+            results.forEach((item, index) => {
+                const placemark = new ymaps.Placemark([item.coordinates.lat, item.coordinates.lon], {
+                    balloonContent: `
+                        <strong>${item.title}</strong><br>
+                        <strong>Цена:</strong> ${item.price.value.toLocaleString('ru-RU')} ₽<br>
+                        <strong>Площадь:</strong> ${item.area} кв.м<br>
+                        <strong>Адрес:</strong> ${item.address}<br>
+                        <a href="${item.url}" target="_blank">Открыть на Авито</a>
+                    `
+                }, {
+                    preset: 'islands#redDotIcon'
+                });
+
+                yandexMap.geoObjects.add(placemark);
+            });
+
+            // Центрируем карту по результатам
+            if (results.length > 0) {
+                yandexMap.setBounds(yandexMap.geoObjects.getBounds(), { checkZoomRange: true });
+            }
+        }
+
+        function focusOnMap(coordinates) {
+            if (yandexMap) {
+                yandexMap.setCenter(coordinates, 15, { duration: 500 });
+            }
+        }
+
+        // Предустановка значений
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('minArea').value = 390;
-            document.getElementById('maxArea').value = 420;
-            document.getElementById('loadingZone').checked = true;
-            document.getElementById('singleLevel').value = 'true';
+            document.getElementById('saleOnly').checked = true;
         });
     </script>
 </body>

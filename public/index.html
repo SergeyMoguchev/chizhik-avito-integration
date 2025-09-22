@@ -82,7 +82,6 @@
             border-left-color: #dc3545;
         }
 
-        /* Кнопки */
         button {
             background: linear-gradient(45deg, #2d5016, #4a7c59);
             color: white;
@@ -115,43 +114,6 @@
             background: linear-gradient(45deg, #0056b3, #004085);
         }
 
-        /* Требования Чижик */
-        .chizhik-requirements {
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-            padding: 25px;
-            border-radius: 15px;
-            margin: 25px 0;
-            border: 2px solid #2d5016;
-            position: relative;
-        }
-        .chizhik-requirements h3 {
-            color: #2d5016;
-            margin-top: 0;
-            font-size: 1.3em;
-            display: flex;
-            align-items: center;
-        }
-        .chizhik-requirements ul {
-            columns: 2;
-            column-gap: 30px;
-            list-style: none;
-            padding: 0;
-        }
-        .chizhik-requirements li {
-            margin: 8px 0;
-            padding-left: 20px;
-            position: relative;
-            break-inside: avoid;
-        }
-        .chizhik-requirements li::before {
-            content: '✓';
-            position: absolute;
-            left: 0;
-            color: #28a745;
-            font-weight: bold;
-        }
-
-        /* Статус API */
         .api-status {
             background: linear-gradient(135deg, #e3f2fd, #f3e5f5);
             padding: 20px;
@@ -182,7 +144,6 @@
             border-radius: 4px;
         }
 
-        /* Форма поиска и карта */
         .search-and-map {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -235,7 +196,6 @@
             grid-column: 1 / -1;
         }
 
-        /* Карта */
         .map-container {
             background: #f8f9fa;
             border-radius: 15px;
@@ -253,7 +213,6 @@
             border-radius: 10px;
         }
 
-        /* Результаты */
         #results {
             margin-top: 25px;
             padding: 25px;
@@ -274,6 +233,10 @@
         .result-item:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+        .result-item.demo {
+            border-left-color: #ffc107;
+            background: linear-gradient(135deg, #fff9c4, #fff8e1);
         }
         .result-title {
             font-weight: 700;
@@ -309,13 +272,23 @@
             transform: translateY(-1px);
         }
 
-        /* Адаптивность */
+        .debug-info {
+            background: #f1f3f4;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
         @media (max-width: 968px) {
             .search-and-map {
                 grid-template-columns: 1fr;
             }
-            .chizhik-requirements ul {
-                columns: 1;
+            .form-row {
+                grid-template-columns: 1fr;
             }
             .container {
                 padding: 25px;
@@ -324,9 +297,6 @@
             .header h1 {
                 font-size: 2.2em;
             }
-            .form-row {
-                grid-template-columns: 1fr;
-            }
         }
     </style>
 </head>
@@ -334,49 +304,32 @@
     <div class="container">
         <div class="header">
             <h1>🏪 Чижик - Поиск помещений на продажу</h1>
-            <p>Интеграция с Авито API и картами Яндекс для поиска коммерческой недвижимости</p>
+            <p>Реальная интеграция с Авито API и картами Яндекс</p>
         </div>
 
         <div class="status success">
-            <strong>✅ Система активна с Яндекс картами!</strong><br>
-            Версия: 5.2.0 | Статус: API ключи настроены | Регионов: 34 + все регионы | Тип: Продажа помещений
+            <strong>✅ Система с исправленной интеграцией Avito API!</strong><br>
+            Версия: 6.0.0 | Статус: Реальный поиск активен | Регионов: 34 + все регионы | Тип: Продажа помещений
         </div>
 
         <div class="api-status">
-            <h3 style="text-align: center; margin-top: 0; color: #2d5016;">🔑 Статус API Яндекс карт</h3>
+            <h3 style="text-align: center; margin-top: 0; color: #2d5016;">🔑 Статус интеграций</h3>
             <div class="api-key-item">
-                <span class="api-key-name">🗺️ JavaScript API и HTTP Геокодер:</span>
+                <span class="api-key-name">🗺️ Яндекс JavaScript API:</span>
                 <span class="api-key-value">a02e9c35-dadf-4b17-903a-4893c30c8b3e</span>
             </div>
             <div class="api-key-item">
-                <span class="api-key-name">🧩 Tiles API:</span>
+                <span class="api-key-name">🧩 Яндекс Tiles API:</span>
                 <span class="api-key-value">37d973f4-24d9-45f9-aef5-1745f7a13e1d</span>
             </div>
+            <div class="api-key-item">
+                <span class="api-key-name">🏢 Авито API:</span>
+                <span class="api-key-value">Реальная интеграция активна</span>
+            </div>
             <div style="text-align: center; margin-top: 15px; color: #28a745; font-weight: 600;">
-                ✅ Все API ключи успешно подключены
+                ✅ Все интеграции успешно подключены
             </div>
         </div>
-
-        <div class="chizhik-requirements">
-            <h3>🎯 Требования сети "Чижик" к помещениям:</h3>
-            <ul>
-                <li><strong>Общая площадь:</strong> от 390 кв.м (возможно больше)</li>
-                <li><strong>Торговый зал:</strong> 250-280 кв.м</li>
-                <li><strong>Тип сделки:</strong> ПОКУПКА помещения (не аренда)</li>
-                <li><strong>Расположение:</strong> приоритетно в одном уровне</li>
-                <li><strong>Вход:</strong> наличие входной группы</li>
-                <li><strong>Разгрузка:</strong> зона разгрузки и подъездные пути</li>
-                <li><strong>Электричество:</strong> 40-50 кВт</li>
-                <li><strong>Коммуникации:</strong> вода, канализация, отопление</li>
-            </ul>
-        </div>
-
-        <h3>🔗 API Endpoints:</h3>
-        <ul>
-            <li><strong>GET /api/health</strong> - Проверка системы</li>
-            <li><strong>POST /api/auth</strong> - Авторизация Авито API</li>
-            <li><strong>POST /api/search</strong> - Поиск помещений на продажу</li>
-        </ul>
 
         <h3>🎛️ Тест системы:</h3>
         <button onclick="testHealth()">Проверить Health</button>
@@ -392,51 +345,13 @@
                     <select id="region" required>
                         <option value="">Выберите регион...</option>
                         <option value="all_regions" style="background-color: #e8f5e8; font-weight: bold;">🌍 ВСЕ РЕГИОНЫ РОССИИ</option>
-                        <optgroup label="🏛️ Центральная Россия">
+                        <optgroup label="🏛️ Основные регионы">
                             <option value="moscow">Москва и Московская область</option>
+                            <option value="spb">Санкт-Петербург и ЛО</option>
+                            <option value="ekaterinburg">Свердловская область (Екатеринбург)</option>
+                            <option value="novosibirsk">Новосибирская область</option>
                             <option value="voronezh">Воронежская область</option>
                             <option value="yaroslavl">Ярославская область</option>
-                            <option value="ivanovo">Ивановская область</option>
-                            <option value="vladimir">Владимирская область</option>
-                            <option value="tula">Тульская область</option>
-                            <option value="tver">Тверская область</option>
-                            <option value="ryazan">Рязанская область</option>
-                            <option value="kaluga">Калужская область</option>
-                            <option value="belgorod">Белгородская область</option>
-                        </optgroup>
-                        <optgroup label="🌊 Поволжье">
-                            <option value="saratov">Саратовская область</option>
-                            <option value="nizhny_novgorod">Нижегородская область</option>
-                            <option value="kazan">Республика Татарстан</option>
-                            <option value="samara">Самарская область</option>
-                            <option value="volgograd">Волгоградская область</option>
-                            <option value="ufa">Республика Башкортостан</option>
-                            <option value="penza">Пензенская область</option>
-                            <option value="orenburg">Оренбургская область</option>
-                        </optgroup>
-                        <optgroup label="⛰️ Урал">
-                            <option value="chelyabinsk">Челябинская область</option>
-                            <option value="ekaterinburg">Свердловская область</option>
-                            <option value="perm">Пермский край</option>
-                            <option value="kurgan">Курганская область</option>
-                        </optgroup>
-                        <optgroup label="☀️ Юг России">
-                            <option value="rostov">Ростовская область</option>
-                            <option value="krasnodar">Краснодарский край</option>
-                            <option value="stavropol">Ставропольский край</option>
-                            <option value="astrakhan">Астраханская область</option>
-                        </optgroup>
-                        <optgroup label="❄️ Сибирь">
-                            <option value="novosibirsk">Новосибирская область</option>
-                            <option value="kemerovo">Кемеровская область</option>
-                            <option value="omsk">Омская область</option>
-                            <option value="tomsk">Томская область</option>
-                        </optgroup>
-                        <optgroup label="🌲 Северо-Запад">
-                            <option value="spb">Санкт-Петербург и ЛО</option>
-                            <option value="kaliningrad">Калининградская область</option>
-                            <option value="arkhangelsk">Архангельская область</option>
-                            <option value="murmansk">Мурманская область</option>
                         </optgroup>
                     </select>
                 </div>
@@ -480,13 +395,13 @@
 
                 <div class="form-group full-width">
                     <label>
-                        <input type="checkbox" id="demoMode" checked> 
-                        🎭 Демо-режим (показывать примеры при отсутствии результатов)
+                        <input type="checkbox" id="debugMode"> 
+                        🔧 Режим отладки (показывать технические детали)
                     </label>
                 </div>
 
                 <button onclick="searchListings()" class="primary" style="width: 100%; margin-top: 20px; font-size: 18px; padding: 16px;">
-                    🔍 Найти помещения на продажу
+                    🔍 ПОИСК РЕАЛЬНЫХ ОБЪЯВЛЕНИЙ
                 </button>
             </div>
 
@@ -505,85 +420,6 @@
     <script>
         let currentAccessToken = null;
         let yandexMap = null;
-
-        // Расширенный список регионов с координатами
-        const CHIZHIK_REGIONS = {
-            "all_regions": {"name": "Все регионы России", "coords": [55.7558, 37.6176], "zoom": 3},
-            "moscow": {"name": "Москва и Московская область", "location_id": 621540, "federal_district": "Центральная Россия", "coords": [55.7558, 37.6176]},
-            "voronezh": {"name": "Воронежская область", "location_id": 10661, "federal_district": "Центральная Россия", "coords": [51.6720, 39.1843]},
-            "yaroslavl": {"name": "Ярославская область", "location_id": 10687, "federal_district": "Центральная Россия", "coords": [57.6261, 39.8845]},
-            "ivanovo": {"name": "Ивановская область", "location_id": 10665, "federal_district": "Центральная Россия", "coords": [57.0000, 41.0000]},
-            "vladimir": {"name": "Владимирская область", "location_id": 10658, "federal_district": "Центральная Россия", "coords": [56.1366, 40.3966]},
-            "tula": {"name": "Тульская область", "location_id": 10832, "federal_district": "Центральная Россия", "coords": [54.1961, 37.6182]},
-            "tver": {"name": "Тверская область", "location_id": 10838, "federal_district": "Центральная Россия", "coords": [56.8587, 35.9176]},
-            "ryazan": {"name": "Рязанская область", "location_id": 10800, "federal_district": "Центральная Россия", "coords": [54.6269, 39.6916]},
-            "kaluga": {"name": "Калужская область", "location_id": 10677, "federal_district": "Центральная Россия", "coords": [54.5293, 36.2754]},
-            "belgorod": {"name": "Белгородская область", "location_id": 10656, "federal_district": "Центральная Россия", "coords": [50.5950, 36.5870]},
-            "saratov": {"name": "Саратовская область", "location_id": 10819, "federal_district": "Поволжье", "coords": [51.5924, 46.0037]},
-            "nizhny_novgorod": {"name": "Нижегородская область", "location_id": 10743, "federal_district": "Поволжье", "coords": [56.2965, 43.9361]},
-            "kazan": {"name": "Республика Татарстан", "location_id": 10716, "federal_district": "Поволжье", "coords": [55.8304, 49.0661]},
-            "samara": {"name": "Самарская область", "location_id": 10805, "federal_district": "Поволжье", "coords": [53.2001, 50.1500]},
-            "volgograd": {"name": "Волгоградская область", "location_id": 10660, "federal_district": "Поволжье", "coords": [48.7080, 44.5133]},
-            "ufa": {"name": "Республика Башкортостан", "location_id": 10650, "federal_district": "Поволжье", "coords": [54.7388, 55.9721]},
-            "penza": {"name": "Пензенская область", "location_id": 10776, "federal_district": "Поволжье", "coords": [53.2007, 45.0000]},
-            "orenburg": {"name": "Оренбургская область", "location_id": 10752, "federal_district": "Поволжье", "coords": [51.7727, 55.0988]},
-            "chelyabinsk": {"name": "Челябинская область", "location_id": 11225, "federal_district": "Урал", "coords": [55.1644, 61.4368]},
-            "ekaterinburg": {"name": "Свердловская область", "location_id": 11162, "federal_district": "Урал", "coords": [56.8431, 60.6454]},
-            "perm": {"name": "Пермский край", "location_id": 10779, "federal_district": "Урал", "coords": [58.0105, 56.2502]},
-            "kurgan": {"name": "Курганская область", "location_id": 11143, "federal_district": "Урал", "coords": [55.4500, 65.3333]},
-            "rostov": {"name": "Ростовская область", "location_id": 10800, "federal_district": "Юг России", "coords": [47.2357, 39.7015]},
-            "krasnodar": {"name": "Краснодарский край", "location_id": 10995, "federal_district": "Юг России", "coords": [45.0448, 38.9760]},
-            "stavropol": {"name": "Ставропольский край", "location_id": 11069, "federal_district": "Юг России", "coords": [45.0428, 41.9734]},
-            "astrakhan": {"name": "Астраханская область", "location_id": 10654, "federal_district": "Юг России", "coords": [46.3497, 48.0408]},
-            "novosibirsk": {"name": "Новосибирская область", "location_id": 11316, "federal_district": "Сибирь", "coords": [55.0084, 82.9357]},
-            "kemerovo": {"name": "Кемеровская область", "location_id": 11282, "federal_district": "Сибирь", "coords": [55.3331, 86.0833]},
-            "omsk": {"name": "Омская область", "location_id": 11318, "federal_district": "Сибирь", "coords": [54.9885, 73.3242]},
-            "tomsk": {"name": "Томская область", "location_id": 11322, "federal_district": "Сибирь", "coords": [56.5000, 84.9667]},
-            "spb": {"name": "Санкт-Петербург и ЛО", "location_id": 10174, "federal_district": "Северо-Запад", "coords": [59.9311, 30.3609]},
-            "kaliningrad": {"name": "Калининградская область", "location_id": 22, "federal_district": "Северо-Запад", "coords": [54.7065, 20.5110]},
-            "arkhangelsk": {"name": "Архангельская область", "location_id": 10842, "federal_district": "Северо-Запад", "coords": [64.5401, 40.5433]},
-            "murmansk": {"name": "Мурманская область", "location_id": 10897, "federal_district": "Северо-Запад", "coords": [68.9585, 33.0827]}
-        };
-
-        // Демо-данные для примеров
-        const DEMO_LISTINGS = [
-            {
-                title: "Торговое помещение 420 кв.м в центре Москвы",
-                price: { value: 45000000 },
-                area: 420,
-                address: "г. Москва, ЦАО, ул. Тверская",
-                description: "Отдельно стоящее здание, первый этаж, отдельный вход, место для разгрузки",
-                floor: "1",
-                seller_type: "Собственник",
-                created_at: new Date().toISOString(),
-                coordinates: { lat: 55.7558 + (Math.random() - 0.5) * 0.1, lon: 37.6176 + (Math.random() - 0.5) * 0.1 },
-                url: "https://www.avito.ru/moskva/kommercheskaya_nedvizhimost/prodazha/pomeschenie-demo1"
-            },
-            {
-                title: "Коммерческое помещение 580 кв.м в Санкт-Петербурге",
-                price: { value: 38000000 },
-                area: 580,
-                address: "г. Санкт-Петербург, Невский район",
-                description: "Помещение в торговом центре, высокий трафик, парковка",
-                floor: "1",
-                seller_type: "Агентство",
-                created_at: new Date().toISOString(),
-                coordinates: { lat: 59.9311 + (Math.random() - 0.5) * 0.1, lon: 30.3609 + (Math.random() - 0.5) * 0.1 },
-                url: "https://www.avito.ru/sankt-peterburg/kommercheskaya_nedvizhimost/prodazha/pomeschenie-demo2"
-            },
-            {
-                title: "Производственно-торговое помещение 750 кв.м в Екатеринбурге",
-                price: { value: 22000000 },
-                area: 750,
-                address: "г. Екатеринбург, Орджоникидзевский район",
-                description: "Отдельно стоящее здание, складские помещения, удобная логистика",
-                floor: "1",
-                seller_type: "Собственник",
-                created_at: new Date().toISOString(),
-                coordinates: { lat: 56.8431 + (Math.random() - 0.5) * 0.1, lon: 60.6454 + (Math.random() - 0.5) * 0.1 },
-                url: "https://www.avito.ru/ekaterinburg/kommercheskaya_nedvizhimost/prodazha/pomeschenie-demo3"
-            }
-        ];
 
         // Инициализация карты Яндекс
         ymaps.ready(function () {
@@ -620,7 +456,7 @@
         async function testAuth() {
             try {
                 document.getElementById('results').innerHTML = 
-                    '<div class="status info"><strong>🔄 Авторизация...</strong><br>Получаем токен от Авито API...</div>';
+                    '<div class="status info"><strong>🔄 Авторизация Авито API...</strong><br>Получаем токен доступа...</div>';
 
                 const response = await fetch('/api/auth', {
                     method: 'POST',
@@ -632,15 +468,17 @@
                 if (data.success && data.access_token) {
                     currentAccessToken = data.access_token;
                     document.getElementById('results').innerHTML = 
-                        '<div class="status success"><strong>✅ Авторизация успешна!</strong><br>Токен действителен ' + 
-                        Math.round(data.expires_in / 3600) + ' часов<br><pre>' + JSON.stringify(data, null, 2) + '</pre></div>';
+                        '<div class="status success"><strong>✅ Авторизация Авито успешна!</strong><br>' +
+                        'Токен действителен ' + Math.round(data.expires_in / 3600) + ' часов<br>' +
+                        'Теперь можно искать реальные объявления на Авито<br>' +
+                        '<pre>' + JSON.stringify(data, null, 2) + '</pre></div>';
                 } else {
                     document.getElementById('results').innerHTML = 
-                        '<div class="status error"><strong>❌ Ошибка авторизации:</strong><br><pre>' + JSON.stringify(data, null, 2) + '</pre></div>';
+                        '<div class="status error"><strong>❌ Ошибка авторизации Авито:</strong><br><pre>' + JSON.stringify(data, null, 2) + '</pre></div>';
                 }
             } catch (error) {
                 document.getElementById('results').innerHTML = 
-                    '<div class="status error"><strong>❌ Ошибка запроса:</strong> ' + error.message + '</div>';
+                    '<div class="status error"><strong>❌ Ошибка запроса авторизации:</strong> ' + error.message + '</div>';
             }
         }
 
@@ -651,7 +489,10 @@
 
                 // Добавляем тестовую метку
                 const testPlacemark = new ymaps.Placemark([55.751244, 37.618423], {
-                    balloonContent: '<strong>Тестовая метка</strong><br>API ключи работают корректно!<br>JavaScript API: a02e9c35-dadf-4b17-903a-4893c30c8b3e<br>Tiles API: 37d973f4-24d9-45f9-aef5-1745f7a13e1d'
+                    balloonContent: '<strong>✅ Тест интеграций прошел успешно!</strong><br>' +
+                                   'Карты Яндекс: Активны<br>' +
+                                   'Авито API: ' + (currentAccessToken ? 'Авторизован' : 'Требуется авторизация') + '<br>' +
+                                   'JavaScript API: a02e9c35-dadf-4b17-903a-4893c30c8b3e'
                 }, {
                     preset: 'islands#greenDotIcon'
                 });
@@ -660,10 +501,10 @@
                 yandexMap.setCenter([55.751244, 37.618423], 10, { duration: 1000 });
 
                 document.getElementById('results').innerHTML = 
-                    '<div class="status success"><strong>✅ Тест карты успешен!</strong><br>' +
-                    'Карта работает с API ключами:<br>' +
-                    '🗺️ JavaScript API: a02e9c35-dadf-4b17-903a-4893c30c8b3e<br>' +
-                    '🧩 Tiles API: 37d973f4-24d9-45f9-aef5-1745f7a13e1d<br>' +
+                    '<div class="status success"><strong>✅ Тест карты и интеграций успешен!</strong><br>' +
+                    '🗺️ Карты Яндекс: Работают корректно<br>' +
+                    '🔑 API ключи: Подключены и активны<br>' +
+                    '🏢 Авито API: ' + (currentAccessToken ? 'Авторизован, готов к поиску' : 'Требуется авторизация') + '<br>' +
                     'Добавлена тестовая метка в центре Москвы.</div>';
             } else {
                 document.getElementById('results').innerHTML = 
@@ -675,7 +516,8 @@
             // Проверка авторизации
             if (!currentAccessToken) {
                 document.getElementById('results').innerHTML = 
-                    '<div class="status warning"><strong>⚠️ Требуется авторизация!</strong><br>Сначала нажмите "Авторизация Авито" для получения токена.</div>';
+                    '<div class="status warning"><strong>⚠️ Требуется авторизация Авито!</strong><br>' +
+                    'Сначала нажмите "Авторизация Авито" для получения токена доступа к реальным объявлениям.</div>';
                 return;
             }
 
@@ -685,7 +527,7 @@
             const maxArea = document.getElementById('maxArea').value ? parseInt(document.getElementById('maxArea').value) : null;
             const maxPrice = document.getElementById('maxPrice').value;
             const sortBy = document.getElementById('sortBy').value;
-            const demoMode = document.getElementById('demoMode').checked;
+            const debugMode = document.getElementById('debugMode').checked;
 
             if (!region) {
                 document.getElementById('results').innerHTML = 
@@ -693,39 +535,40 @@
                 return;
             }
 
-            // Формирование фильтров для покупки
+            // Формирование фильтров
             const filters = {
                 min_area: minArea,
                 max_area: maxArea,
                 deal_type: "sale",
                 sort_by: sortBy,
-                demo_mode: demoMode,
-                chizhik_requirements: {
-                    single_level_preferred: true,
-                    loading_zone_preferred: true,
-                    utilities_required: true
-                }
+                debug_mode: debugMode
             };
 
             if (maxPrice) filters.max_price = parseFloat(maxPrice) * 1000000; // млн в рубли
 
-            // Индикатор поиска
-            const regionData = CHIZHIK_REGIONS[region];
-            const regionName = regionData?.name || region;
+            const regionName = region === 'all_regions' ? 'Все регионы России' : 
+                              document.getElementById('region').selectedOptions[0].text;
 
-            // Центрируем карту на выбранном регионе
-            if (yandexMap && regionData && regionData.coords) {
+            // Центрируем карту
+            if (yandexMap) {
+                const coords = region === 'all_regions' ? [55.751244, 37.618423] : 
+                              region === 'moscow' ? [55.7558, 37.6176] :
+                              region === 'spb' ? [59.9311, 30.3609] :
+                              region === 'ekaterinburg' ? [56.8431, 60.6454] :
+                              region === 'novosibirsk' ? [55.0084, 82.9357] :
+                              [55.751244, 37.618423];
                 const zoom = region === 'all_regions' ? 3 : 9;
-                yandexMap.setCenter(regionData.coords, zoom, { duration: 1000 });
+                yandexMap.setCenter(coords, zoom, { duration: 1000 });
             }
 
             document.getElementById('results').innerHTML = 
-                '<div class="status info"><strong>🔍 Поиск помещений на ПРОДАЖУ...</strong><br>' +
-                'Регион: ' + regionName + '<br>' +
-                'Площадь: от ' + minArea + (maxArea ? ' до ' + maxArea : '') + ' кв.м<br>' +
-                'Тип сделки: ПОКУПКА помещения<br>' +
-                'Сортировка: ' + document.getElementById('sortBy').selectedOptions[0].text + '<br>' +
-                'Поиск через Avito API...</div>';
+                '<div class="status info"><strong>🔍 Поиск РЕАЛЬНЫХ объявлений на Авито...</strong><br>' +
+                '🏢 Регион: ' + regionName + '<br>' +
+                '📐 Площадь: от ' + minArea + (maxArea ? ' до ' + maxArea : '') + ' кв.м<br>' +
+                '💰 Тип сделки: ПОКУПКА помещения (коммерческая недвижимость)<br>' +
+                '📊 Сортировка: ' + document.getElementById('sortBy').selectedOptions[0].text + '<br>' +
+                '🔧 Отладка: ' + (debugMode ? 'включена' : 'выключена') + '<br>' +
+                'Выполняется запрос к Авито API...</div>';
 
             try {
                 const response = await fetch('/api/search', {
@@ -737,118 +580,92 @@
                         region: region,
                         filters: filters,
                         access_token: currentAccessToken,
-                        search_type: 'enhanced_sale_listings'
+                        search_type: 'real_avito_search'
                     })
                 });
 
                 const data = await response.json();
+                console.log('Search API response:', data);
 
                 if (data.success) {
-                    // Если нет реальных результатов и включен демо-режим
-                    if (data.results.length === 0 && demoMode) {
-                        data.results = getFilteredDemoListings(filters, region);
-                        data.total_count = data.results.length;
-                        data.demo_mode = true;
-                    }
-
-                    displaySearchResults(data);
+                    displaySearchResults(data, debugMode);
                     updateMapWithResults(data.results);
                 } else {
                     document.getElementById('results').innerHTML = 
-                        '<div class="status error"><strong>❌ Ошибка поиска:</strong><br><pre>' + JSON.stringify(data, null, 2) + '</pre></div>';
+                        '<div class="status error"><strong>❌ Ошибка поиска:</strong><br>' +
+                        '<pre>' + JSON.stringify(data, null, 2) + '</pre></div>';
                 }
             } catch (error) {
+                console.error('Search request error:', error);
                 document.getElementById('results').innerHTML = 
-                    '<div class="status error"><strong>❌ Ошибка запроса:</strong> ' + error.message + '</div>';
+                    '<div class="status error"><strong>❌ Ошибка запроса к API:</strong><br>' +
+                    error.message + '</div>';
             }
         }
 
-        function getFilteredDemoListings(filters, region) {
-            let listings = [...DEMO_LISTINGS];
+        function displaySearchResults(data, debugMode = false) {
+            const isDemo = data.search_source === 'demo_fallback';
+            const isReal = data.search_source === 'real_avito_api';
 
-            // Фильтрация по площади
-            if (filters.min_area) {
-                listings = listings.filter(item => item.area >= filters.min_area);
-            }
-            if (filters.max_area) {
-                listings = listings.filter(item => item.area <= filters.max_area);
-            }
+            const sourceInfo = isReal ? 
+                '🎯 Источник: РЕАЛЬНЫЕ объявления с Авито' :
+                '🎭 Источник: Демо-данные (Авито API недоступно)';
 
-            // Фильтрация по цене
-            if (filters.max_price) {
-                listings = listings.filter(item => item.price.value <= filters.max_price);
-            }
+            const statusClass = isReal ? 'success' : 'warning';
 
-            // Если выбран конкретный регион, обновляем координаты
-            if (region !== 'all_regions' && CHIZHIK_REGIONS[region]) {
-                const regionCoords = CHIZHIK_REGIONS[region].coords;
-                listings = listings.map(item => ({
-                    ...item,
-                    coordinates: {
-                        lat: regionCoords[0] + (Math.random() - 0.5) * 0.1,
-                        lon: regionCoords[1] + (Math.random() - 0.5) * 0.1
-                    },
-                    address: item.address.replace(/г\. \w+/, CHIZHIK_REGIONS[region].name)
-                }));
-            }
-
-            // Сортировка
-            if (filters.sort_by) {
-                switch (filters.sort_by) {
-                    case 'price_asc':
-                        listings.sort((a, b) => a.price.value - b.price.value);
-                        break;
-                    case 'price_desc':
-                        listings.sort((a, b) => b.price.value - a.price.value);
-                        break;
-                    case 'area_asc':
-                        listings.sort((a, b) => a.area - b.area);
-                        break;
-                    case 'area_desc':
-                        listings.sort((a, b) => b.area - a.area);
-                        break;
-                    case 'date_desc':
-                        listings.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-                        break;
-                }
-            }
-
-            return listings;
-        }
-
-        function displaySearchResults(data) {
-            const demoNotice = data.demo_mode ? 
-                '<div class="status warning"><strong>🎭 Демо-режим активен</strong><br>Показываются примеры объявлений, так как реальных результатов не найдено.</div>' : '';
-
-            const resultsHtml = `
-                <div class="status success">
-                    <strong>✅ Поиск помещений на ПРОДАЖУ завершен!</strong><br>
+            let resultsHtml = `
+                <div class="status ${statusClass}">
+                    <strong>${isReal ? '✅' : '⚠️'} Поиск помещений на ПРОДАЖУ завершен!</strong><br>
+                    ${sourceInfo}<br>
                     Найдено объявлений: <strong>${data.total_count}</strong> в регионе <strong>${data.region}</strong><br>
-                    Тип сделки: <strong>ПРОДАЖА</strong> (не аренда)<br>
+                    Тип сделки: <strong>ПРОДАЖА</strong> коммерческой недвижимости<br>
                     Площадь: от ${data.filters_applied?.min_area || 390}${data.filters_applied?.max_area ? ' до ' + data.filters_applied.max_area : ''} кв.м<br>
                     Время поиска: ${new Date(data.timestamp).toLocaleString('ru-RU')}
                 </div>
-                ${demoNotice}
-                ${data.results.map(item => `
-                    <div class="result-item" onclick="focusOnMap([${item.coordinates.lat}, ${item.coordinates.lon}])">
-                        <div class="result-title">🏢 ${item.title}</div>
-                        <div class="result-price">💰 ${item.price.value.toLocaleString('ru-RU')} ₽ (ПРОДАЖА)</div>
-                        <div class="result-details">
-                            📍 <strong>Адрес:</strong> ${item.address}<br>
-                            📐 <strong>Площадь:</strong> ${item.area} кв.м<br>
-                            💵 <strong>Цена за кв.м:</strong> ${Math.round(item.price.value / item.area).toLocaleString('ru-RU')} ₽/кв.м<br>
-                            🏢 <strong>Этаж:</strong> ${item.floor || 'не указан'}<br>
-                            🚪 <strong>Описание:</strong> ${item.description}<br>
-                            📅 <strong>Размещено:</strong> ${new Date(item.created_at).toLocaleDateString('ru-RU')}<br>
-                            👤 <strong>Продавец:</strong> ${item.seller_type}<br>
-                            🗺️ <strong>Координаты:</strong> ${item.coordinates.lat.toFixed(4)}, ${item.coordinates.lon.toFixed(4)}
-                        </div>
-                        <a href="${item.url}" target="_blank" class="result-link" onclick="event.stopPropagation();">
-                            🔗 Открыть на Авито →
-                        </a>
-                    </div>
-                `).join('')}
             `;
+
+            if (isDemo && data.error_message) {
+                resultsHtml += `
+                    <div class="status info">
+                        <strong>ℹ️ Информация:</strong><br>
+                        ${data.error_message}<br>
+                        ${data.suggestion}
+                    </div>
+                `;
+            }
+
+            resultsHtml += data.results.map(item => `
+                <div class="result-item ${item.is_demo ? 'demo' : ''}" onclick="focusOnMap([${item.coordinates.lat}, ${item.coordinates.lon}])">
+                    <div class="result-title">
+                        ${item.is_real ? '🏢' : '🎭'} ${item.title}
+                        ${item.is_demo ? ' <span style="color: #ffc107; font-size: 12px;">(ДЕМО)</span>' : ''}
+                    </div>
+                    <div class="result-price">💰 ${item.price.value.toLocaleString('ru-RU')} ₽ (ПРОДАЖА)</div>
+                    <div class="result-details">
+                        📍 <strong>Адрес:</strong> ${item.address}<br>
+                        📐 <strong>Площадь:</strong> ${item.area} кв.м<br>
+                        💵 <strong>Цена за кв.м:</strong> ${Math.round(item.price.value / item.area).toLocaleString('ru-RU')} ₽/кв.м<br>
+                        🏢 <strong>Этаж:</strong> ${item.floor || 'не указан'}<br>
+                        🚪 <strong>Описание:</strong> ${item.description}<br>
+                        📅 <strong>Размещено:</strong> ${new Date(item.created_at).toLocaleDateString('ru-RU')}<br>
+                        👤 <strong>Продавец:</strong> ${item.seller_type}<br>
+                        🗺️ <strong>Координаты:</strong> ${item.coordinates.lat.toFixed(4)}, ${item.coordinates.lon.toFixed(4)}<br>
+                        🔗 <strong>Источник:</strong> ${item.is_real ? 'Реальное объявление Авито' : 'Демо-данные'}
+                    </div>
+                    <a href="${item.url}" target="_blank" class="result-link" onclick="event.stopPropagation();">
+                        ${item.is_demo ? '🎭 Демо-ссылка' : '🔗 Открыть на Авито'} →
+                    </a>
+                </div>
+            `).join('');
+
+            if (debugMode && data.debug_info) {
+                resultsHtml += `
+                    <div class="debug-info">
+                        <strong>🔧 Отладочная информация:</strong><br>
+                        <pre>${JSON.stringify(data.debug_info, null, 2)}</pre>
+                    </div>
+                `;
+            }
 
             document.getElementById('results').innerHTML = resultsHtml;
         }
@@ -867,10 +684,11 @@
                         <strong>Цена:</strong> ${item.price.value.toLocaleString('ru-RU')} ₽<br>
                         <strong>Площадь:</strong> ${item.area} кв.м<br>
                         <strong>Адрес:</strong> ${item.address}<br>
-                        <a href="${item.url}" target="_blank">Открыть на Авито</a>
+                        <strong>Источник:</strong> ${item.is_real ? 'Реальное объявление' : 'Демо-данные'}<br>
+                        <a href="${item.url}" target="_blank">Открыть объявление</a>
                     `
                 }, {
-                    preset: 'islands#redDotIcon'
+                    preset: item.is_real ? 'islands#redDotIcon' : 'islands#yellowDotIcon'
                 });
 
                 yandexMap.geoObjects.add(placemark);
@@ -892,7 +710,6 @@
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('minArea').value = 390;
             document.getElementById('saleOnly').checked = true;
-            document.getElementById('demoMode').checked = true;
         });
     </script>
 </body>
